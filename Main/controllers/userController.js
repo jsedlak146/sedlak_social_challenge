@@ -1,26 +1,25 @@
-// ObjectId() method for converting studentId string into an ObjectId for querying database
 const { ObjectId } = require('mongoose').Types;
 const { Student, Course } = require('../models');
 
-// TODO: Create an aggregate function to get the number of students overall
+// Aggregate function to get the number of students overall
 const headCount = async () =>
   Student.aggregate()
-    // Your code here
+    .count('studentCount')
     .then((numberOfStudents) => numberOfStudents);
 
-// Execute the aggregate method on the Student model and calculate the overall grade by using the $avg operator
+// Aggregate function for getting the overall grade using $avg
 const grade = async (studentId) =>
   Student.aggregate([
-    // TODO: Ensure we include only the student who can match the given ObjectId using the $match operator
-    {
-      // Your code here
-    },
+    // only include the given student by using $match
+    { $match: { _id: ObjectId(studentId) } },
     {
       $unwind: '$assignments',
     },
-    // TODO: Group information for the student with the given ObjectId alongside an overall grade calculated using the $avg operator
     {
-      // Your code here
+      $group: {
+        _id: ObjectId(studentId),
+        overallGrade: { $avg: '$assignments.score' },
+      },
     },
   ]);
 
@@ -44,7 +43,6 @@ module.exports = {
   getSingleStudent(req, res) {
     Student.findOne({ _id: req.params.studentId })
       .select('-__v')
-      .lean()
       .then(async (student) =>
         !student
           ? res.status(404).json({ message: 'No student with that ID' })
@@ -111,7 +109,7 @@ module.exports = {
   removeAssignment(req, res) {
     Student.findOneAndUpdate(
       { _id: req.params.studentId },
-      { $pull: { assignment: { assignmentId: req.params.assignmentId } } },
+      { $pull: { assignments: { assignmentId: { $in: [req.params.assignmentId] } } } },
       { runValidators: true, new: true }
     )
       .then((student) =>

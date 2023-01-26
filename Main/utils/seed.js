@@ -35,13 +35,16 @@ connection.once('open', async () => {
   }
 
   // Add students to the collection and await the results
-  await Student.collection.insertMany(students);
+  // await Student.collection.insertMany(students);
+  const newStudents = await Student.insertMany(students);
 
   // Add courses to the collection and await the results
+  console.log("newStudents: ", newStudents);
+
   await Course.collection.insertOne({
     courseName: 'UCLA',
     inPerson: false,
-    students: [...students],
+    students: [...newStudents.map(student => student._id )],
   });
 
   // Log out the seed data to indicate what should appear in the database
