@@ -8,15 +8,14 @@ const {
 } = require('../../controllers/thoughtController');
 
 // /api/students
-router.route('/').get(getStudents).post(createStudent);
+router.route('/').get(getThought).post(createThought);
 
 // /api/students/:studentId
-router.route('/:studentId').get(getSingleStudent).delete(deleteStudent);
-
-// /api/students/:studentId/assignments
-router.route('/:studentId/assignments').post(addAssignment);
+router.route('/:thoughtID').get(getSingleThought).delete(deleteThought).put(updateThought);
 
 // /api/students/:studentId/assignments/:assignmentId
-router.route('/:studentId/assignments/:assignmentId').delete(removeAssignment);
+router.route('/:thoughtID/reactions').post(addReaction);
+
+router.route('/:thoughtID/reactions/:reactionID').delete(deleteReaction);
 
 module.exports = router;
