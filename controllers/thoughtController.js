@@ -1,5 +1,5 @@
 const { ObjectId } = require('mongoose').Types;
-const { Student, Course } = require('../models');
+const { Student, Course, Thought } = require('../models');
 
 // Aggregate function to get the number of students overall
 const headCount = async () =>
@@ -25,14 +25,13 @@ const grade = async (studentId) =>
 
 module.exports = {
   // Get all students
-  getStudents(req, res) {
-    Student.find()
-      .then(async (students) => {
-        const studentObj = {
-          students,
-          headCount: await headCount(),
+  getThought(req, res) {
+    Thought.find()
+      .then(async (thought) => {
+        const thoughtObj = {
+          thought,
         };
-        return res.json(studentObj);
+        return res.json(thoughtObj);
       })
       .catch((err) => {
         console.log(err);
@@ -40,15 +39,15 @@ module.exports = {
       });
   },
   // Get a single student
-  getSingleStudent(req, res) {
-    Student.findOne({ _id: req.params.studentId })
+  getSingleThought(req, res) {
+    Thought.findOne({ _id: req.params.thoughtId })
       .select('-__v')
-      .then(async (student) =>
-        !student
-          ? res.status(404).json({ message: 'No student with that ID' })
+      .then(async (thought) =>
+        !thought
+          ? res.status(404).json({ message: 'No thought with that ID' })
           : res.json({
-              student,
-              grade: await grade(req.params.studentId),
+              thought,
+              thought: await user(req.params.thoughtId),
             })
       )
       .catch((err) => {
@@ -57,29 +56,29 @@ module.exports = {
       });
   },
   // create a new student
-  createStudent(req, res) {
-    Student.create(req.body)
-      .then((student) => res.json(student))
+  createThought(req, res) {
+    Thought.create(req.body)
+      .then((thought) => res.json(thought))
       .catch((err) => res.status(500).json(err));
   },
   // Delete a student and remove them from the course
-  deleteStudent(req, res) {
-    Student.findOneAndRemove({ _id: req.params.studentId })
-      .then((student) =>
-        !student
-          ? res.status(404).json({ message: 'No such student exists' })
-          : Course.findOneAndUpdate(
-              { students: req.params.studentId },
-              { $pull: { students: req.params.studentId } },
+  deleteThought(req, res) {
+    Thought.findOneAndRemove({ _id: req.params.thoughtId })
+      .then((thought) =>
+        !thought
+          ? res.status(404).json({ message: 'No such thought exists' })
+          : thought.findOneAndUpdate(
+              { students: req.params.thoughtId },
+              { $pull: { students: req.params.thoughtId } },
               { new: true }
             )
       )
-      .then((course) =>
-        !course
+      .then((thought) =>
+        !thought
           ? res.status(404).json({
-              message: 'Student deleted, but no courses found',
+              message: 'thought deleted, but no courses found',
             })
-          : res.json({ message: 'Student successfully deleted' })
+          : res.json({ message: 'thought successfully deleted' })
       )
       .catch((err) => {
         console.log(err);
@@ -88,7 +87,7 @@ module.exports = {
   },
 
   // Add an assignment to a student
-  addAssignment(req, res) {
+  addThought(req, res) {
     console.log('You are adding an assignment');
     console.log(req.body);
     Student.findOneAndUpdate(
