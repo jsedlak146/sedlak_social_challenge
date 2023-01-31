@@ -5,8 +5,7 @@
     "mongoose": "^6.0.13"
   },
   "scripts": {
-    "start": "node server.js",
-    "seed": "node utils/seed.js"
+    "start": "node server.js"
   },
   "name": "sedlak_social_challenge",
   "description": "",
