@@ -1,5 +1,5 @@
 const { ObjectId } = require('mongoose').Types;
-const { Student, Course, Thought } = require('../models');
+const { User, Thought } = require('../models');
 
 // Aggregate function to get the number of students overall
 const headCount = async () =>
@@ -27,11 +27,11 @@ module.exports = {
   // Get all students
   getThought(req, res) {
     Thought.find()
-      .then(async (thought) => {
-        const thoughtObj = {
-          thought,
-        };
-        return res.json(thoughtObj);
+      .then(async (allThoughts) => {
+       // const thoughtObj = {
+         // thought,
+        //};
+        return res.json(allThoughts);
       })
       .catch((err) => {
         console.log(err);
@@ -40,14 +40,14 @@ module.exports = {
   },
   // Get a single student
   getSingleThought(req, res) {
-    Thought.findOne({ _id: req.params.thoughtId })
+    Thought.findOne({ _id: req.params.thoughtID })
       .select('-__v')
       .then(async (thought) =>
         !thought
           ? res.status(404).json({ message: 'No thought with that ID' })
           : res.json({
               thought,
-              thought: await user(req.params.thoughtId),
+              thought: await user(req.params.thoughtID),
             })
       )
       .catch((err) => {
@@ -63,13 +63,13 @@ module.exports = {
   },
   // Delete a student and remove them from the course
   deleteThought(req, res) {
-    Thought.findOneAndRemove({ _id: req.params.thoughtId })
+    Thought.findOneAndRemove({ _id: req.params.thoughtID })
       .then((thought) =>
         !thought
           ? res.status(404).json({ message: 'No such thought exists' })
           : thought.findOneAndUpdate(
-              { students: req.params.thoughtId },
-              { $pull: { students: req.params.thoughtId } },
+              { _id: req.params.thoughtId },
+              { $pull: { _id: req.params.thoughtId } },
               { new: true }
             )
       )
@@ -90,13 +90,13 @@ module.exports = {
   addThought(req, res) {
     console.log('You are adding an assignment');
     console.log(req.body);
-    Student.findOneAndUpdate(
-      { _id: req.params.studentId },
-      { $addToSet: { assignments: req.body } },
+    User.findOneAndUpdate(
+      { _id: req.params.thoughtID },
+      { $addToSet: { assignments: req.body } }, 
       { runValidators: true, new: true }
     )
-      .then((student) =>
-        !student
+      .then((user) =>
+        !user
           ? res
               .status(404)
               .json({ message: 'No student found with that ID :(' })
@@ -105,19 +105,8 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
   // Remove assignment from a student
-  removeAssignment(req, res) {
-    Student.findOneAndUpdate(
-      { _id: req.params.studentId },
-      { $pull: { assignments: { assignmentId: { $in: [req.params.assignmentId] } } } },
-      { runValidators: true, new: true }
-    )
-      .then((student) =>
-        !student
-          ? res
-              .status(404)
-              .json({ message: 'No student found with that ID :(' })
-          : res.json(student)
-      )
-      .catch((err) => res.status(500).json(err));
-  },
-};
+    //to remove a thought first we gotta find the thought and delete
+    //Thought.findOneAndDelete?({_id: req.params.thoughtID}) 
+    // now that thought doesnt exist but we know the username associated with it
+    // then we use the username to go to the users model and remove the associated thought object id from the thoughts array inside user model
+    //
