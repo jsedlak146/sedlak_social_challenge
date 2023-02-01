@@ -11,7 +11,7 @@ const reactionSchema = new Schema(
       required: true,
       maxlength: 280,
       minlength: 1,
-      default: 'Unnamed assignment',
+      default: 'Blank',
     },
     username: {
       type: String,

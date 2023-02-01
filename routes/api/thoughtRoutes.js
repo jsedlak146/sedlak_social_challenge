@@ -7,7 +7,7 @@ const {
   getAllThoughts
 } = require('../../controllers/thoughtController');
 
-// /api/students
+// /api/thought
 router.route('/').get(getAllThoughts).post(createThought);
 
 // /api/students/:studentId
